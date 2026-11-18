@@ -1,31 +1,53 @@
 package com.tidewater.freight;
 
+import com.tidewater.freight.exceptions.UnknownZoneException;
+import com.tidewater.freight.models.ServiceLevel;
+import com.tidewater.freight.models.ShipmentRequest;
+import com.tidewater.freight.pricing.HeavyItemSurcharge;
+import com.tidewater.freight.pricing.ZoneRule;
+import com.tidewater.freight.repositories.ZoneRuleRepository;
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import java.math.BigDecimal;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ShippingCalculatorTest {
 
+    @Mock
+    ZoneRuleRepository repository;
+
     @Test
-    void calculatesACost() {
-        ShippingCalculator calculator = new ShippingCalculator();
-        double cost = calculator.calculateCost("DOMESTIC", 10, "STANDARD");
-        assertTrue(cost > 0); // it returned a cost
+    @DisplayName("Unknown zone throws UnknownZoneException")
+    void unknownZoneThrows() {
+        when(repository.findRule("MOON")).thenReturn(Optional.empty());
+        ShippingCalculator calculator = new ShippingCalculator(repository, new HeavyItemSurcharge());
+
+        UnknownZoneException ex = assertThrows(UnknownZoneException.class, () -> calculator.calculateCost(new ShipmentRequest("MOON", new BigDecimal("10"), ServiceLevel.STANDARD)));
+
+        assertEquals("Unknown zone: MOON", ex.getMessage());
     }
 
     @Test
-    void calculatesExpressCost() {
-        // mock the calculator and check it returns what we told it to
-        ShippingCalculator calculator = mock(ShippingCalculator.class);
-        when(calculator.calculateCost("INTERNATIONAL", 40, "EXPRESS")).thenReturn(967.5);
-        assertEquals(967.5, calculator.calculateCost("INTERNATIONAL", 40, "EXPRESS"));
-    }
+    @DisplayName("Cost is rounded to two decimal places")
+    void roundsToTwoDecimals() {
+        ZoneRule stubRule = mock(ZoneRule.class);
+        when(stubRule.baseCost(new BigDecimal("1"))).thenReturn(new BigDecimal("5.005"));
+        when(repository.findRule("DOMESTIC")).thenReturn(Optional.of(stubRule));
 
-    @Test
-    void returnsACostForAShipment() {
-        ShippingCalculator calculator = new ShippingCalculator();
-        double cost = calculator.calculateCost("REGIONAL", 5, "STANDARD");
-        assertNotNull(cost); // a result came back
+        ShippingCalculator calculator = new ShippingCalculator(repository, new HeavyItemSurcharge());
+
+        BigDecimal cost = calculator.calculateCost(new ShipmentRequest("DOMESTIC", new BigDecimal("1"), ServiceLevel.STANDARD));
+
+        assertEquals(new BigDecimal("5.01"), cost);
     }
 }
