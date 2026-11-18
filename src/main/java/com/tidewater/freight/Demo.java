@@ -1,11 +1,36 @@
 package com.tidewater.freight;
 
-public class Demo {
-    public static void main(String[] args) {
-        ShippingCalculator calculator = new ShippingCalculator();
+import com.tidewater.freight.exceptions.ShippingException;
+import com.tidewater.freight.models.ServiceLevel;
+import com.tidewater.freight.models.ShipmentRequest;
+import com.tidewater.freight.pricing.DomesticZoneRule;
+import com.tidewater.freight.pricing.HeavyItemSurcharge;
+import com.tidewater.freight.pricing.InternationalZoneRule;
+import com.tidewater.freight.pricing.RegionalZoneRule;
+import com.tidewater.freight.repositories.InMemoryZoneRuleRepository;
+import com.tidewater.freight.repositories.ZoneRuleRepository;
 
-        System.out.println("Result DOMESTIC 10kg STANDARD       -> " + calculator.calculateCost("DOMESTIC", 10, "STANDARD"));
-        System.out.println("Result INTERNATIONAL 40kg EXPRESS   -> " + calculator.calculateCost("INTERNATIONAL", 40, "EXPRESS"));
-        System.out.println("Result unknown zone MOON 10kg STD   -> " + calculator.calculateCost("MOON", 10, "STANDARD"));
+import java.math.BigDecimal;
+import java.util.Map;
+
+public class Demo {
+
+    public static void main(String[] args) {
+        ZoneRuleRepository repository = new InMemoryZoneRuleRepository(Map.of(
+            "DOMESTIC",      new DomesticZoneRule(),
+            "REGIONAL",      new RegionalZoneRule(),
+            "INTERNATIONAL", new InternationalZoneRule()
+        ));
+        ShippingCalculator calculator = new ShippingCalculator(repository, new HeavyItemSurcharge());
+
+        System.out.println(calculator.calculateCost(new ShipmentRequest("DOMESTIC", new BigDecimal("10"), ServiceLevel.STANDARD)));
+
+        System.out.println(calculator.calculateCost(new ShipmentRequest("INTERNATIONAL", new BigDecimal("40"), ServiceLevel.EXPRESS)));
+
+        try {
+            calculator.calculateCost(new ShipmentRequest("MOON", new BigDecimal("10"), ServiceLevel.STANDARD));
+        } catch (ShippingException e) {
+            System.out.println("Rejected: " + e.getMessage());
+        }
     }
 }
