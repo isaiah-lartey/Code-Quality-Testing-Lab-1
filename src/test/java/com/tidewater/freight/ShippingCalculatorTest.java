@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,9 +31,13 @@ class ShippingCalculatorTest {
     @DisplayName("Unknown zone throws UnknownZoneException")
     void unknownZoneThrows() {
         when(repository.findRule("MOON")).thenReturn(Optional.empty());
-        ShippingCalculator calculator = new ShippingCalculator(repository, new HeavyItemSurcharge());
+        ShippingCalculator calculator =
+            new ShippingCalculator(repository, new HeavyItemSurcharge());
+        ShipmentRequest request =
+            new ShipmentRequest("MOON", new BigDecimal("10"), ServiceLevel.STANDARD);
 
-        UnknownZoneException ex = assertThrows(UnknownZoneException.class, () -> calculator.calculateCost(new ShipmentRequest("MOON", new BigDecimal("10"), ServiceLevel.STANDARD)));
+        UnknownZoneException ex = assertThrows(UnknownZoneException.class,
+            () -> calculator.calculateCost(request));
 
         assertEquals("Unknown zone: MOON", ex.getMessage());
     }
@@ -41,12 +46,15 @@ class ShippingCalculatorTest {
     @DisplayName("Cost is rounded to two decimal places")
     void roundsToTwoDecimals() {
         ZoneRule stubRule = mock(ZoneRule.class);
-        when(stubRule.baseCost(new BigDecimal("1"))).thenReturn(new BigDecimal("5.005"));
+        when(stubRule.baseCost(any())).thenReturn(new BigDecimal("5.005"));
         when(repository.findRule("DOMESTIC")).thenReturn(Optional.of(stubRule));
 
-        ShippingCalculator calculator = new ShippingCalculator(repository, new HeavyItemSurcharge());
+        ShippingCalculator calculator =
+            new ShippingCalculator(repository, new HeavyItemSurcharge());
+        ShipmentRequest request =
+            new ShipmentRequest("DOMESTIC", new BigDecimal("1"), ServiceLevel.STANDARD);
 
-        BigDecimal cost = calculator.calculateCost(new ShipmentRequest("DOMESTIC", new BigDecimal("1"), ServiceLevel.STANDARD));
+        BigDecimal cost = calculator.calculateCost(request);
 
         assertEquals(new BigDecimal("5.01"), cost);
     }

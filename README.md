@@ -12,7 +12,7 @@ A refactor of the starter shipping-cost service. The starter compiled and its te
 ```bash
 mvn compile
 mvn exec:java -Dexec.mainClass=com.tidewater.freight.Demo   # the demo
-mvn test                                                    # 52 tests
+mvn test                                                    # 55 tests
 mvn verify                                                  # tests + JaCoCo: target/site/jacoco/index.html
 mvn test-compile org.pitest:pitest-maven:mutationCoverage   # PIT: target/pit-reports/index.html
 ```
@@ -61,7 +61,7 @@ The demo entry point and the three-zone shape are also kept.
 - **`String serviceLevel` → the [`ServiceLevel`](src/main/java/com/tidewater/freight/models/ServiceLevel.java) enum.** A typo is now a compile error, not a silently standard price.
 - **`double` arithmetic → `BigDecimal`.** Rates and fees are exact decimals, and the calculator returns `setScale(2, RoundingMode.HALF_UP)`.
 - **The `println` left the calculator.** Output belongs to [`Demo`](src/main/java/com/tidewater/freight/Demo.java); the calculator computes and returns.
-- **The three hollow tests → eight test files, 52 tests.** See [The tests](#the-tests).
+- **The three hollow tests → eight test files, 55 tests.** See [The tests](#the-tests).
 
 ### One behaviour changed, by design
 
@@ -78,13 +78,13 @@ No production class is edited to add the zone. `ShippingCalculator`, the three e
 
 ## The tests
 
-Eight files, 52 tests, one file per concern. The test tree mirrors the production packages.
+Eight files, 55 tests, one file per concern. The test tree mirrors the production packages.
 
 | File | Tests | What it pins |
 |---|---|---|
 | [`ShippingCalculatorTest`](src/test/java/com/tidewater/freight/ShippingCalculatorTest.java) | 2 | unknown zone throws; prices round HALF_UP to two decimals |
-| [`ShipmentRequestTest`](src/test/java/com/tidewater/freight/models/ShipmentRequestTest.java) | 8 | every validation rule, plus the `0.01` / `-0.01` boundary pair |
-| [`InMemoryZoneRuleRepositoryTest`](src/test/java/com/tidewater/freight/repositories/InMemoryZoneRuleRepositoryTest.java) | 6 | lookup contract, defensive copy, `zoneName()` as key, duplicate guard |
+| [`ShipmentRequestTest`](src/test/java/com/tidewater/freight/models/ShipmentRequestTest.java) | 9 | every validation rule, the `0.01` / `-0.01` boundary pair, and zone whitespace trimming |
+| [`InMemoryZoneRuleRepositoryTest`](src/test/java/com/tidewater/freight/repositories/InMemoryZoneRuleRepositoryTest.java) | 8 | lookup contract, defensive copy, `zoneName()` as key, duplicate guard, null list and null element guards |
 | [`HeavyItemSurchargeTest`](src/test/java/com/tidewater/freight/pricing/HeavyItemSurchargeTest.java) | 7 | the 30 kg boundary, both sides |
 | [`ServiceLevelTest`](src/test/java/com/tidewater/freight/models/ServiceLevelTest.java) | 5 | STANDARD = 1, EXPRESS = 1.5, and `apply` does not round |
 | [`ZoneRulesTest`](src/test/java/com/tidewater/freight/pricing/ZoneRulesTest.java) | 12 | each rule's rate and fee, and `zoneName()` matches the lane |
@@ -103,7 +103,7 @@ There are two, of different kinds.
 
 ### 1. Parameterized exact-price matrix (test quality)
 
-[`ShippingPricingTest`](src/test/java/com/tidewater/freight/ShippingPricingTest.java). The starter's three tests asserted `cost > 0`, which passes for any positive number and does not check the price. This parameterized matrix asserts exact prices instead. The refactored suite is checked by PIT, which generates its own mutants: **16 of 19 killed (84%), test strength 100%**. The three uncovered mutants are in `Demo`'s print statement, which no test exercises — a demo, not the pricing logic. A green build now means the pricing rules work, not merely that three tests ran.
+[`ShippingPricingTest`](src/test/java/com/tidewater/freight/ShippingPricingTest.java). The starter's three tests asserted `cost > 0`, which passes for any positive number and does not check the price. This parameterized matrix asserts exact prices instead. The refactored suite is checked by PIT, which generates its own mutants: **118 of 23 killed, test strength 100%**. The three uncovered mutants are in `Demo`'s print statement, which no test exercises — a demo, not the pricing logic. A green build now means the pricing rules work, not merely that three tests ran.
 
 ### 2. Duplicate-zone guard (a guard against a class of bug)
 
@@ -114,8 +114,10 @@ There are two, of different kinds.
 
 Of the twelve ranked findings in [`ANALYSIS.md`](ANALYSIS.md):
 
-- **Eight are pinned by tests:** #1, #2, #3, #4, #6, #8, #9, #10, plus the duplicate-zone-guard improvement.
-- **Three are pinned by the shape of the code and reviewed rather than tested:**
+- **Seven are pinned by tests:** #1, #2, #3, #4, #6, #8, #10, plus the duplicate-zone-guard improvement.
+- **Five are pinned by the shape of the code and reviewed rather than tested:**
   - #5: the 31-line method is now 10 lines.
   - #7: the print left the calculator.
+  - #9: the compiler enforces the service level through the `ServiceLevel` enum, so a typo no longer builds.
   - #11: the noise comments and the empty `if` branch are gone.
+  - #12: lines are wrapped to 100 columns and the test has no wildcard imports.

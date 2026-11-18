@@ -9,6 +9,7 @@ public record ShipmentRequest(String zone, BigDecimal weightKg, ServiceLevel ser
         if (zone == null || zone.isBlank()) {
             throw new InvalidShipmentException("Zone must not be null or blank");
         }
+        zone = zone.trim();
         if (weightKg == null) {
             throw new InvalidShipmentException("Weight must not be null");
         }

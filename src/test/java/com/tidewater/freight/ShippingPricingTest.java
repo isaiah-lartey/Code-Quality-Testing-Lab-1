@@ -1,5 +1,6 @@
 package com.tidewater.freight;
 
+import com.tidewater.freight.exceptions.UnknownZoneException;
 import com.tidewater.freight.models.ServiceLevel;
 import com.tidewater.freight.models.ShipmentRequest;
 import com.tidewater.freight.pricing.DomesticZoneRule;
@@ -66,7 +67,7 @@ class ShippingPricingTest {
     @Test
     @DisplayName("unknown zone is rejected end to end")
     void unknownZoneIsRejectedEndToEnd() {
-        assertThrows(com.tidewater.freight.exceptions.UnknownZoneException.class, () ->
+        assertThrows(UnknownZoneException.class, () ->
             calculator.calculateCost(
                 new ShipmentRequest("MOON", new BigDecimal("10"), ServiceLevel.STANDARD)));
     }
@@ -74,7 +75,7 @@ class ShippingPricingTest {
     @Test
     @DisplayName("lowercase zone is rejected (zone names are case-sensitive)")
     void lowercaseZoneIsRejected() {
-        assertThrows(com.tidewater.freight.exceptions.UnknownZoneException.class, () ->
+        assertThrows(UnknownZoneException.class, () ->
             calculator.calculateCost(
                 new ShipmentRequest("domestic", new BigDecimal("10"), ServiceLevel.STANDARD)));
     }

@@ -21,14 +21,19 @@ public class Demo {
             new RegionalZoneRule(),
             new InternationalZoneRule()
         ));
-        ShippingCalculator calculator = new ShippingCalculator(repository, new HeavyItemSurcharge());
+        ShippingCalculator calculator =
+            new ShippingCalculator(repository, new HeavyItemSurcharge());
 
-        System.out.println(calculator.calculateCost(new ShipmentRequest("DOMESTIC", new BigDecimal("10"), ServiceLevel.STANDARD)));
+        printCost(calculator, "DOMESTIC", "10", ServiceLevel.STANDARD);
+        printCost(calculator, "INTERNATIONAL", "40", ServiceLevel.EXPRESS);
+        printCost(calculator, "MOON", "10", ServiceLevel.STANDARD);
+    }
 
-        System.out.println(calculator.calculateCost(new ShipmentRequest("INTERNATIONAL", new BigDecimal("40"), ServiceLevel.EXPRESS)));
-
+    private static void printCost(ShippingCalculator calculator, String zone,
+                                  String weightKg, ServiceLevel level) {
         try {
-            calculator.calculateCost(new ShipmentRequest("MOON", new BigDecimal("10"), ServiceLevel.STANDARD));
+            ShipmentRequest request = new ShipmentRequest(zone, new BigDecimal(weightKg), level);
+            System.out.println(calculator.calculateCost(request));
         } catch (ShippingException e) {
             System.out.println("Rejected: " + e.getMessage());
         }

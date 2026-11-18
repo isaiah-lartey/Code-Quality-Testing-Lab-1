@@ -7,6 +7,7 @@ import com.tidewater.freight.pricing.ZoneRule;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,8 +77,8 @@ class InMemoryZoneRuleRepositoryTest {
         ZoneRule first = new DomesticZoneRule();
         ZoneRule second = new ZoneRule() {
             @Override public String zoneName() { return "DOMESTIC"; }
-            @Override public java.math.BigDecimal baseCost(java.math.BigDecimal weightKg) {
-                return java.math.BigDecimal.ZERO;
+            @Override public BigDecimal baseCost(BigDecimal weightKg) {
+                return BigDecimal.ZERO;
             }
         };
 
@@ -85,5 +86,27 @@ class InMemoryZoneRuleRepositoryTest {
             new InMemoryZoneRuleRepository(List.of(first, second)));
 
         assertEquals("Duplicate rule for zone DOMESTIC", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("a null rule list throws ZoneConfigurationException")
+    void rejectsNullRuleList() {
+        ZoneConfigurationException ex = assertThrows(ZoneConfigurationException.class, () ->
+            new InMemoryZoneRuleRepository(null));
+
+        assertEquals("Rules must not be null", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("a null rule inside the list throws ZoneConfigurationException")
+    void rejectsNullRuleInList() {
+        List<ZoneRule> rules = new ArrayList<>();
+        rules.add(new DomesticZoneRule());
+        rules.add(null);
+
+        ZoneConfigurationException ex = assertThrows(ZoneConfigurationException.class, () ->
+            new InMemoryZoneRuleRepository(rules));
+
+        assertEquals("Rules must not contain null", ex.getMessage());
     }
 }

@@ -20,6 +20,9 @@ class NewZoneExtensionTest {
 
     static class ArcticZoneRule implements ZoneRule {
 
+        private static final BigDecimal RATE_PER_KG = new BigDecimal("20");
+        private static final BigDecimal COLD_CHAIN_FEE = new BigDecimal("50");
+
         @Override
         public String zoneName() {
             return "ARCTIC";
@@ -27,8 +30,7 @@ class NewZoneExtensionTest {
 
         @Override
         public BigDecimal baseCost(BigDecimal weightKg) {
-            return new BigDecimal("20").multiply(weightKg)
-                .add(new BigDecimal("50"));
+            return RATE_PER_KG.multiply(weightKg).add(COLD_CHAIN_FEE);
         }
     }
 
@@ -65,6 +67,8 @@ class NewZoneExtensionTest {
         ShipmentRequest domestic = new ShipmentRequest(
             "DOMESTIC", new BigDecimal("10"), ServiceLevel.STANDARD);
 
-        assertEquals(calcBefore.calculateCost(domestic), calcAfter.calculateCost(domestic));
+        BigDecimal expected = new BigDecimal("50.00");
+        assertEquals(expected, calcBefore.calculateCost(domestic));
+        assertEquals(expected, calcAfter.calculateCost(domestic));
     }
 }

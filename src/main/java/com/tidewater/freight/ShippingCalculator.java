@@ -20,7 +20,8 @@ public class ShippingCalculator {
     }
 
     public BigDecimal calculateCost(ShipmentRequest request) {
-        ZoneRule rule = zoneRules.findRule(request.zone()).orElseThrow(() -> new UnknownZoneException(request.zone()));
+        ZoneRule rule = zoneRules.findRule(request.zone())
+            .orElseThrow(() -> new UnknownZoneException(request.zone()));
 
         BigDecimal cost = rule.baseCost(request.weightKg());
         cost = cost.add(heavySurcharge.surchargeFor(request.weightKg()));

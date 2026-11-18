@@ -78,4 +78,13 @@ class ShipmentRequestTest {
         assertDoesNotThrow(() ->
             new ShipmentRequest("DOMESTIC", new BigDecimal("0.01"), ServiceLevel.STANDARD));
     }
+
+    @Test
+    @DisplayName("surrounding whitespace in the zone is trimmed")
+    void trimsSurroundingWhitespaceFromZone() {
+        ShipmentRequest request = new ShipmentRequest(
+            "  DOMESTIC ", new BigDecimal("10"), ServiceLevel.STANDARD);
+
+        assertEquals("DOMESTIC", request.zone());
+    }
 }

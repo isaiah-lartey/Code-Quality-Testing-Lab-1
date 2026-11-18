@@ -13,8 +13,14 @@ public class InMemoryZoneRuleRepository implements ZoneRuleRepository {
     private final Map<String, ZoneRule> rulesByZone;
 
     public InMemoryZoneRuleRepository(List<ZoneRule> rules) {
+        if (rules == null) {
+            throw new ZoneConfigurationException("Rules must not be null");
+        }
         Map<String, ZoneRule> byZone = new LinkedHashMap<>();
         for (ZoneRule rule : rules) {
+            if (rule == null) {
+                throw new ZoneConfigurationException("Rules must not contain null");
+            }
             String zone = rule.zoneName();
             if (byZone.putIfAbsent(zone, rule) != null) {
                 throw new ZoneConfigurationException(
