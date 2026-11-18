@@ -17,8 +17,8 @@ class HeavyItemSurchargeTest {
         "0.01,   0",
         "1,      0",
         "29.99,  0",
-        "30,     0",     // boundary: 30 is NOT heavy
-        "30.01,  20",    // just above
+        "30,     0",    
+        "30.01,  20",   
         "31,     20",
         "1000,   20"
     })
