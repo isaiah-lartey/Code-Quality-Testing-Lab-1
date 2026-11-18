@@ -1,6 +1,6 @@
 # Analysis: Tidewater Freight Shipping Cost Service
 
-This document analyses the Tidewater Freight shipping cost service. It identifies the problems in the starter code, ranks them by business impact, and shows which of the existing tests prove nothing. Line references are links to the starter repository, and every claim was reproduced against the original code.
+This document analyses the Tidewater Freight shipping cost service. It identifies the problems in the starter code, ranks them by business impact, and shows which of the existing tests prove nothing. Line references are links to the starter repository.
 
 ## The most serious problem
 
@@ -76,7 +76,7 @@ The values on lines 17, 19, 23, 24 and 29 are `10`, `25`, `30`, `20` and `1.5`, 
 | `returnsACostForAShipment` | [25–30](https://github.com/isaiah-lartey/Code-Quality-Testing-Lab-1/blob/10cb1a3/src/test/java/com/tidewater/freight/ShippingCalculatorTest.java#L25-L30) | `assertNotNull` on a primitive `double` (line 29). It is boxed on the way in and can never be null, so the assertion cannot fail. | A green build cannot distinguish a working price from a broken one. |
 | `calculatesACost` | [10–15](https://github.com/isaiah-lartey/Code-Quality-Testing-Lab-1/blob/10cb1a3/src/test/java/com/tidewater/freight/ShippingCalculatorTest.java#L10-L15) | `assertTrue(cost > 0)` (line 14) passes for `0.01` and `50000` alike. It does not check the price. | The suite cannot catch a wrong price; the amount on the invoice is unpinned. |
 
-The 967.5 in the mocked test is the correct price for `INTERNATIONAL 40kg EXPRESS`. The author knew the right answer and never asked the real code for it.
+The 967.5 in the mocked test is the correct price for `INTERNATIONAL 40kg EXPRESS`. the test hard-codes the correct price, so the real calculator is never exercised.
 
 ### Names and isolation
 `calculatesACost` and `returnsACostForAShipment` do not say what behaviour is checked. Because the calculator builds its own repository (problem 4), no test can supply its own rates, so every test depends on the numbers hard-coded in `InMemoryRateRepository`. **Business risk:** a green build is taken as evidence of correctness, but the suite cannot catch a regression in any of the pricing rules the company actually sells.
