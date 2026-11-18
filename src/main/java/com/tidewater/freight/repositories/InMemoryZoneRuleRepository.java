@@ -4,6 +4,7 @@ import com.tidewater.freight.exceptions.ZoneConfigurationException;
 import com.tidewater.freight.pricing.ZoneRule;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -11,15 +12,16 @@ public class InMemoryZoneRuleRepository implements ZoneRuleRepository {
 
     private final Map<String, ZoneRule> rulesByZone;
 
-    public InMemoryZoneRuleRepository(Map<String, ZoneRule> rules) {
-        Map<String, ZoneRule> copy = new LinkedHashMap<>();
-        for (Map.Entry<String, ZoneRule> entry : rules.entrySet()) {
-            if (copy.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+    public InMemoryZoneRuleRepository(List<ZoneRule> rules) {
+        Map<String, ZoneRule> byZone = new LinkedHashMap<>();
+        for (ZoneRule rule : rules) {
+            String zone = rule.zoneName();
+            if (byZone.putIfAbsent(zone, rule) != null) {
                 throw new ZoneConfigurationException(
-                    "Duplicate rule for zone " + entry.getKey());
+                    "Duplicate rule for zone " + zone);
             }
         }
-        this.rulesByZone = Map.copyOf(copy);
+        this.rulesByZone = Map.copyOf(byZone);
     }
 
     @Override

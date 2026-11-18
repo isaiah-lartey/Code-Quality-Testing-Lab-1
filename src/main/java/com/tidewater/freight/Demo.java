@@ -11,15 +11,15 @@ import com.tidewater.freight.repositories.InMemoryZoneRuleRepository;
 import com.tidewater.freight.repositories.ZoneRuleRepository;
 
 import java.math.BigDecimal;
-import java.util.Map;
+import java.util.List;
 
 public class Demo {
 
     public static void main(String[] args) {
-        ZoneRuleRepository repository = new InMemoryZoneRuleRepository(Map.of(
-            "DOMESTIC",      new DomesticZoneRule(),
-            "REGIONAL",      new RegionalZoneRule(),
-            "INTERNATIONAL", new InternationalZoneRule()
+        ZoneRuleRepository repository = new InMemoryZoneRuleRepository(List.of(
+            new DomesticZoneRule(),
+            new RegionalZoneRule(),
+            new InternationalZoneRule()
         ));
         ShippingCalculator calculator = new ShippingCalculator(repository, new HeavyItemSurcharge());
 
