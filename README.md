@@ -4,7 +4,7 @@ A refactor of the starter shipping-cost service. The starter compiled and its te
 
 ## Read this first
 
-- **[`ANALYSIS.md`](ANALYSIS.md)**: the pre-refactor analysis of the starter. It contains twelve ranked findings (the mutable-map observation was demoted to minor), the hollow tests, and the planned structure. It was written before any code changed, and its line links are pinned to the starter commit [`10cb1a3`](https://github.com/isaiah-lartey/Code-Quality-Testing-Lab-1/tree/10cb1a3), so they open the starter code rather than the refactored tree.
+- **[`ANALYSIS.md`](ANALYSIS.md)**: the pre-refactor analysis of the starter. It contains twelve ranked findings, the hollow tests, and the planned structure. It was written before any code changed, and its line links are pinned to the starter commit [`10cb1a3`](https://github.com/isaiah-lartey/Code-Quality-Testing-Lab-1/tree/10cb1a3), so they open the starter code rather than the refactored tree.
 - **This file**: the reasoning behind the refactor, what was kept, fixed, and rewritten, and the improvements beyond the brief.
 
 ## Running it
